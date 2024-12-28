@@ -2,8 +2,15 @@ package com.developer.accounts.controller;
 
 import com.developer.accounts.constants.AccountsConstants;
 import com.developer.accounts.dto.CustomerDto;
+import com.developer.accounts.dto.ErrorResponseDto;
 import com.developer.accounts.dto.ResponseDto;
 import com.developer.accounts.service.IAccountsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -14,6 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+
+@Tag(name = "CRUD REST APIs for Accounts in NVR Bank",
+        description = "Accounts APIs for create,update,delete and fetch account details"
+)
 @RestController
 @RequestMapping(path="/api/v1/accounts",produces={MediaType.APPLICATION_JSON_VALUE})
 @AllArgsConstructor
@@ -22,6 +33,12 @@ public class AccountsController {
 
     @Autowired
     private IAccountsService iAccountsService;
+
+    @Operation(
+            summary ="create a new account",
+            description = "REST API to create a new account based on the provided customer details"
+    )
+    @ApiResponse(responseCode = "201",description = "Account created successfully")
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createAccount(@Valid @RequestBody CustomerDto customerDto) {
         iAccountsService.createAccount(customerDto);
@@ -29,6 +46,11 @@ public class AccountsController {
                 .body(new ResponseDto(AccountsConstants.STATUS_201, AccountsConstants.MESSAGE_201));
     }
 
+    @Operation(
+            summary ="fetch account details",
+            description = "REST API to fetch account details based on the provided mobile number"
+    )
+    @ApiResponse(responseCode = "200",description = "Account details fetched successfully")
     @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchAccountDetails(@RequestParam
                                                                @Pattern(regexp = "(^$|[0-9]{10})",message = "Mobile Number must be 10 digits")
@@ -37,6 +59,25 @@ public class AccountsController {
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
     }
 
+    @Operation(
+            summary ="update account details",
+            description = "REST API to update account details based on the provided customer details"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Account details updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "417",
+                    description = "Failed to update account details",
+                    content = @Content(
+                            schema = @Schema(
+                                    implementation = ErrorResponseDto.class
+                            )
+                    )
+            )
+    })
     @PutMapping("/update")
     public ResponseEntity<ResponseDto> updateAccountDetails(@Valid @RequestBody CustomerDto customerDto) {
         boolean isUpdated = iAccountsService.updateAccount(customerDto);
@@ -51,6 +92,14 @@ public class AccountsController {
         }
     }
 
+    @Operation(
+            summary ="delete account details",
+            description = "REST API to delete account details based on the provided mobile number"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",description = "Account details deleted successfully"),
+            @ApiResponse(responseCode = "417",description = "Failed to delete account details")
+    })
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto> deleteAccountDetails(@RequestParam
                                                                @Pattern(regexp = "(^$|[0-9]{10})",message = "Mobile Number must be 10 digits")

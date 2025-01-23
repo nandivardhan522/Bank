@@ -1,8 +1,6 @@
 server:
   port: 8080
 spring:
-  application:
-    name:accounts
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -16,3 +14,14 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+build:
+  version: "1.0"
+
+accounts:
+  message: "Welcome to NVR Bank accounts related local APIs "
+  contactDetails:
+    name: "Nandi Vardhan - Developer"
+    email: "nandivardhanreddy@nvr.com"
+  onCallSupport:
+    - (123) 456-7890
+    - (123) 456-67891
